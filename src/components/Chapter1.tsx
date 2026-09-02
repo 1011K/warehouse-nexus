@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
-import WarehouseScene from './WarehouseScene';
-import type { ZoneHighlight, AgentPos } from './WarehouseScene';
-import type { ZoneId } from '../data/simulation';
+import Warehouse3DScene from './Warehouse3DScene';
+import type { Agent3D } from './Warehouse3DScene';
 import './Chapter1.css';
 
 const LIFECYCLE_STEPS = [
-  { id: 'dock',    zone: 'receiving' as ZoneId, label: '1. Inbound Truck IN-07 Docked', detail: 'Inbound freight trailer IN-07 docks at Bay 1 carrying Pallet PLT-204 (SKU BX-4492, Qty 42).' },
-  { id: 'unload',  zone: 'receiving' as ZoneId, label: '2. Unloading & Staging',       detail: 'Electric forklift unloads Pallet PLT-204 onto Receiving Staging Lane 1.' },
-  { id: 'scan',    zone: 'receiving' as ZoneId, label: '3. RFID & Barcode Scan',       detail: 'RFID portal gate scans Pallet PLT-204. Reads SKU BX-4492, Batch B-26, Qty 42.' },
-  { id: 'quality', zone: 'receiving' as ZoneId, label: '4. Quality & GRN Entry',        detail: 'Quality check passed. Goods Receipt Note (GRN) created in Warehouse Management System (WMS).' },
-  { id: 'putaway', zone: 'storage' as ZoneId,   label: '5. Autonomous Put-away',       detail: 'WMS assigns Storage Slot S-04-B. AMR-01 transports Pallet PLT-204 into reserve racks.' },
-  { id: 'stored',  zone: 'storage' as ZoneId,   label: '6. Storage Rack Logged',        detail: 'Pallet PLT-204 stored in rack S-04-B and visible to global WMS order allocation.' },
+  { id: 'dock',    preset: 'receiving' as const, label: '1. Inbound Truck IN-07 Docked', detail: 'Inbound freight trailer IN-07 docks at Bay 1 carrying Pallet PLT-204 (SKU BX-4492, Qty 42).' },
+  { id: 'unload',  preset: 'receiving' as const, label: '2. Unloading & Staging',       detail: 'Electric forklift unloads Pallet PLT-204 onto Receiving Staging Lane 1.' },
+  { id: 'scan',    preset: 'receiving' as const, label: '3. RFID & Barcode Scan',       detail: 'RFID portal gate scans Pallet PLT-204. Reads SKU BX-4492, Batch B-26, Qty 42.' },
+  { id: 'quality', preset: 'receiving' as const, label: '4. Quality & GRN Entry',        detail: 'Quality check passed. Goods Receipt Note (GRN) created in Warehouse Management System (WMS).' },
+  { id: 'putaway', preset: 'storage' as const,   label: '5. Autonomous Put-away',       detail: 'WMS assigns Storage Slot S-04-B. AMR-01 transports Pallet PLT-204 into reserve racks.' },
+  { id: 'stored',  preset: 'storage' as const,   label: '6. Storage Rack Logged',        detail: 'Pallet PLT-204 stored in rack S-04-B and visible to global WMS order allocation.' },
 ];
 
 export default function Chapter1() {
@@ -28,26 +27,25 @@ export default function Chapter1() {
 
   const stepData = LIFECYCLE_STEPS[currentStep];
 
-  const highlights: ZoneHighlight[] = [
-    { zone: stepData.zone, tone: stepData.zone === 'storage' ? 'green' : 'blue' }
+  // 3D Process Agents
+  const agents: Agent3D[] = [
+    { id: 'truck-in', x: -26, y: 0, z: -8, type: 'truck', color: '#1d6ff0', label: 'IN-07' },
+    ...(currentStep >= 1 && currentStep <= 4 ? [
+      { id: 'pallet-plt204', x: -20 + currentStep * 3, y: 0, z: -8 + currentStep * 2, type: 'pallet' as const, color: '#0891b2', label: 'PLT-204 (BX-4492)' }
+    ] : []),
+    ...(currentStep >= 4 ? [
+      { id: 'amr-01', x: -5 + (currentStep - 4) * 2, y: 0, z: 0, type: 'amr' as const, color: '#059669', label: 'AMR-01 (Put-away)' }
+    ] : [])
   ];
 
-  const route: [number, number][] | undefined = currentStep >= 4
-    ? [[100, 200], [200, 200], [350, 220]]
+  const routePath: [number, number, number][] | undefined = currentStep >= 4
+    ? [[-20, 0, -4], [-5, 0, 0], [4, 0, 0]]
     : undefined;
-
-  const agents: AgentPos[] = currentStep <= 1 ? [
-    { x: 70, y: 190, label: 'IN-07', color: '#1a1f2e', icon: '🚛' }
-  ] : currentStep <= 4 ? [
-    { x: 110, y: 200, label: 'PLT-204 (BX-4492)', color: '#0891b2', pulsing: true, icon: '📦' }
-  ] : [
-    { x: 350, y: 220, label: 'AMR Put-away', color: '#059669', pulsing: true, icon: '🤖' }
-  ];
 
   return (
     <section className="chapter ch1">
       <div className="ch1__header">
-        <p className="chapter-eyebrow">Scene 1 · Inbound Lifecycle</p>
+        <p className="chapter-eyebrow">Scene 1 · 3D Inbound Lifecycle</p>
         <h1 className="chapter-title">Truck IN-07 Arrival to Storage Rack S-04-B</h1>
         <p className="chapter-subtitle">
           Watch Pallet PLT-204 (SKU BX-4492) move from inbound Truck IN-07 at Dock 1 through RFID verification, GRN entry in the WMS, and autonomous AMR put-away into Storage Rack S-04-B.
@@ -55,13 +53,15 @@ export default function Chapter1() {
       </div>
 
       <div className="ch1__body">
-        <div className="ch1__scene-container" style={{ flex: 1, minHeight: '380px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', background: '#f9f8f5' }}>
-          <WarehouseScene
-            highlights={highlights}
-            route={route}
-            routeTone="green"
+        <div className="ch1__scene-container" style={{ flex: 1, minHeight: '400px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+          <Warehouse3DScene
+            isActive={true}
+            cameraPreset={stepData.preset}
             agents={agents}
-            focusedZone={stepData.zone}
+            routePath={routePath}
+            routeColor="#059669"
+            storyTitle={stepData.label}
+            storyDetail={stepData.detail}
           />
         </div>
 
@@ -69,7 +69,7 @@ export default function Chapter1() {
           <div className="ch1__step-card explain-box">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <span className="chip chip--blue">STAGE {currentStep + 1} OF {LIFECYCLE_STEPS.length}</span>
-              <span className="chip chip--green">{stepData.zone.toUpperCase()} ZONE</span>
+              <span className="chip chip--green">{stepData.id.toUpperCase()}</span>
             </div>
             <h3 style={{ margin: '0 0 6px', fontSize: '15px', color: 'var(--navy)' }}>{stepData.label}</h3>
             <p style={{ fontSize: '13px', margin: 0, color: 'var(--text-2)', lineHeight: 1.55 }}>{stepData.detail}</p>
@@ -77,7 +77,7 @@ export default function Chapter1() {
 
           <div className="ch1__actions" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
             <button className="btn btn--sm" onClick={() => setIsPlaying(!isPlaying)}>
-              {isPlaying ? '⏸ Pause' : '▶ Play Story'}
+              {isPlaying ? '⏸ Pause' : '▶ Play Sequence'}
             </button>
             <button className="btn btn--sm" onClick={() => setCurrentStep(s => Math.min(LIFECYCLE_STEPS.length - 1, s + 1))} disabled={currentStep >= LIFECYCLE_STEPS.length - 1}>
               Next Step →

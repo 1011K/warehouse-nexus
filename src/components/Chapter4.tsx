@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
-import WarehouseScene from './WarehouseScene';
-import type { ZoneHighlight, AgentPos } from './WarehouseScene';
-import type { ZoneId } from '../data/simulation';
+import Warehouse3DScene from './Warehouse3DScene';
+import type { Agent3D } from './Warehouse3DScene';
 import './Chapter4.css';
 
 type Mode = 'cross-dock' | 'fulfilment';
 
 const ORDER_STAGES = [
-  { id: 'alloc',  zone: 'storage' as ZoneId,  label: '1. Order ORD-2040 Allocated',  detail: 'Customer Order ORD-2040 received in WMS. 3 units of SKU BX-4492 allocated from Pallet PLT-204 in Rack S-04-B.' },
-  { id: 'pick',   zone: 'picking' as ZoneId,  label: '2. Pick-to-Light Retrieval',  detail: 'Picker retrieves SKU BX-4492 from Pick Face B and confirms scan.' },
-  { id: 'convey', zone: 'packing' as ZoneId,  label: '3. Conveyor Roller Transport', detail: 'Tote containing Order ORD-2040 travels down roller conveyor to Packing Bench.' },
-  { id: 'pack',   zone: 'packing' as ZoneId,  label: '4. Packing & Weight Verification', detail: 'Order ORD-2040 packed in carton, shipping label applied, weight verified.' },
-  { id: 'stage',  zone: 'dispatch' as ZoneId, label: '5. Dispatch Staging',           detail: 'Carton staged at Outbound Dock Bay 4 for FedEx freight route pickup.' },
-  { id: 'depart', zone: 'dispatch' as ZoneId, label: '6. Truck OUT-01 Departure',    detail: 'Carton loaded onto Truck OUT-01, manifest closed in WMS, truck departs.' },
+  { id: 'alloc',  preset: 'storage' as const,  label: '1. Order ORD-2040 Allocated',  detail: 'Customer Order ORD-2040 received in WMS. 3 units of SKU BX-4492 allocated from Pallet PLT-204 in Rack S-04-B.' },
+  { id: 'pick',   preset: 'picking' as const,  label: '2. Pick-to-Light Retrieval',  detail: 'Picker retrieves SKU BX-4492 from Pick Face B and confirms scan.' },
+  { id: 'convey', preset: 'picking' as const,  label: '3. Conveyor Roller Transport', detail: 'Tote containing Order ORD-2040 travels down roller conveyor to Packing Bench.' },
+  { id: 'pack',   preset: 'packing' as const,  label: '4. Packing & Weight Verification', detail: 'Order ORD-2040 packed in carton, shipping label applied, weight verified.' },
+  { id: 'stage',  preset: 'dispatch' as const, label: '5. Dispatch Staging',           detail: 'Carton staged at Outbound Dock Bay 4 for FedEx freight route pickup.' },
+  { id: 'depart', preset: 'dispatch' as const, label: '6. Truck OUT-01 Departure',    detail: 'Carton loaded onto Truck OUT-01, manifest closed in WMS, truck departs.' },
 ];
 
 export default function Chapter4() {
@@ -32,49 +31,33 @@ export default function Chapter4() {
 
   const currentStage = ORDER_STAGES[fulfilStep];
 
-  const highlights: ZoneHighlight[] = mode === 'cross-dock' ? (
-    crossDockType === 'normal' ? [
-      { zone: 'receiving', tone: 'blue' },
-      { zone: 'storage', tone: 'amber' },
-      { zone: 'picking', tone: 'amber' },
-      { zone: 'dispatch', tone: 'green' }
-    ] : [
-      { zone: 'receiving', tone: 'cyan' },
-      { zone: 'dispatch', tone: 'green' }
-    ]
-  ) : [
-    { zone: currentStage.zone, tone: 'green' }
-  ];
-
-  const route: [number, number][] | undefined = mode === 'cross-dock' ? (
-    crossDockType === 'normal'
-      ? [[100, 200], [350, 200], [735, 130], [895, 200]]
-      : [[100, 250], [500, 250], [895, 250]]
-  ) : (
-    fulfilStep === 0 ? [[350, 200], [735, 130]] :
-    fulfilStep === 1 ? [[735, 130], [735, 300]] :
-    fulfilStep === 2 ? [[735, 300], [735, 360]] :
-    fulfilStep === 3 ? [[735, 360], [895, 200]] :
-    [[895, 200], [950, 200]]
-  );
-
-  const agents: AgentPos[] = mode === 'cross-dock' ? [
-    { x: crossDockType === 'normal' ? 350 : 500, y: 250, label: crossDockType === 'normal' ? 'Storage Flow' : 'Direct Cross-Dock', color: crossDockType === 'normal' ? '#1d6ff0' : '#0891b2', icon: '📦', pulsing: true }
+  const agents: Agent3D[] = mode === 'cross-dock' ? [
+    { id: 'cross-dock-agent', x: crossDockType === 'normal' ? 4 : 0, y: 0, z: crossDockType === 'normal' ? 4 : 0, type: 'pallet', color: crossDockType === 'normal' ? '#1d6ff0' : '#0891b2', label: crossDockType === 'normal' ? 'Standard Storage Flow' : 'Direct Cross-Dock' }
   ] : [
     {
-      x: fulfilStep === 0 ? 350 : fulfilStep === 1 ? 735 : fulfilStep <= 3 ? 735 : 895,
-      y: fulfilStep === 0 ? 200 : fulfilStep === 1 ? 130 : fulfilStep <= 3 ? 330 : 200,
-      label: 'ORD-2040 (BX-4492)',
+      id: 'ord2040-agent',
+      x: fulfilStep === 0 ? 4 : fulfilStep === 1 ? 18 : fulfilStep <= 3 ? 18 : 28,
+      y: 0,
+      z: fulfilStep === 0 ? 4 : fulfilStep === 1 ? -4 : fulfilStep <= 3 ? 6 : 0,
+      type: 'box',
       color: '#059669',
-      icon: '📦',
-      pulsing: true,
-    }
+      label: 'Order ORD-2040 (BX-4492)'
+    },
+    ...(fulfilStep === 5 ? [{ id: 'truck-out', x: 28, y: 0, z: 0, type: 'truck' as const, color: '#059669', label: 'OUT-01 (Departing)' }] : [])
   ];
+
+  const routePath: [number, number, number][] | undefined = mode === 'cross-dock' ? (
+    crossDockType === 'normal'
+      ? [[-26, 0, 0], [4, 0, 4], [18, 0, -2], [28, 0, 0]]
+      : [[-26, 0, 0], [0, 0, 0], [28, 0, 0]]
+  ) : (
+    [[4, 0, 4], [18, 0, -2], [18, 0, 6], [28, 0, 0]]
+  );
 
   return (
     <section className="chapter ch4">
       <div className="ch4__header">
-        <p className="chapter-eyebrow">Scene 4 · Order Fulfilment &amp; Cross-Docking</p>
+        <p className="chapter-eyebrow">Scene 4 · 3D Order Fulfilment &amp; Cross-Docking</p>
         <h1 className="chapter-title">Cross-Docking &amp; Order ORD-2040 Fulfilment</h1>
         <p className="chapter-subtitle">
           Compare standard storage flow against direct <strong>Cross-Docking</strong>, then watch <strong>Order ORD-2040</strong> move continuously from allocation to picking, conveyor transport, packing, and departure on Truck OUT-01.
@@ -91,13 +74,15 @@ export default function Chapter4() {
       </div>
 
       <div className="ch4__body">
-        <div className="ch4__scene-wrap" style={{ flex: 1, minHeight: '380px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', background: '#f9f8f5' }}>
-          <WarehouseScene
-            highlights={highlights}
-            route={route}
-            routeTone={mode === 'cross-dock' && crossDockType === 'cross-dock' ? 'cyan' : 'green'}
+        <div className="ch4__scene-wrap" style={{ flex: 1, minHeight: '400px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+          <Warehouse3DScene
+            isActive={true}
+            cameraPreset={mode === 'fulfilment' ? currentStage.preset : 'overview'}
             agents={agents}
-            focusedZone={mode === 'fulfilment' ? currentStage.zone : null}
+            routePath={routePath}
+            routeColor={mode === 'cross-dock' && crossDockType === 'cross-dock' ? '#0891b2' : '#059669'}
+            storyTitle={mode === 'fulfilment' ? currentStage.label : (crossDockType === 'normal' ? 'Standard Storage Flow' : 'Direct Cross-Dock Flow')}
+            storyDetail={mode === 'fulfilment' ? currentStage.detail : (crossDockType === 'normal' ? 'Pallets dwell in storage racks before picking.' : 'Transfers goods directly dock-to-dock with zero storage dwell time!')}
           />
         </div>
 

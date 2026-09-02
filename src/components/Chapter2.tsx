@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import WarehouseScene from './WarehouseScene';
-import type { ZoneHighlight, AgentPos } from './WarehouseScene';
+import Warehouse3DScene from './Warehouse3DScene';
+import type { Agent3D } from './Warehouse3DScene';
 import './Chapter2.css';
 
 type Mode = 'slotting' | 'replenishment';
@@ -18,43 +18,33 @@ export default function Chapter2() {
     { title: '5. Pick Face Refilled',         detail: 'Pick face refilled to 50 units. Customer order picking resumes!' },
   ];
 
-  const highlights: ZoneHighlight[] = mode === 'slotting' ? [
-    { zone: 'storage', tone: slottingState === 'bad' ? 'red' : 'green' },
-    { zone: 'dispatch', tone: 'green' }
-  ] : [
-    { zone: 'asrs', tone: 'amber' },
-    { zone: 'picking', tone: replenStep === 4 ? 'green' : 'blue' }
-  ];
-
-  const route: [number, number][] | undefined = mode === 'slotting'
-    ? (slottingState === 'bad'
-        ? [[240, 360], [240, 100], [825, 100], [895, 200]]  // 248m path
-        : [[520, 200], [520, 100], [825, 100], [895, 200]]) // 139m path
-    : (replenStep >= 2 ? [[580, 200], [735, 130]] : undefined);
-
-  const routeTone = mode === 'slotting'
-    ? (slottingState === 'bad' ? 'red' : 'green')
-    : 'amber';
-
-  const agents: AgentPos[] = mode === 'slotting' ? [
+  const agents: Agent3D[] = mode === 'slotting' ? [
     {
-      x: slottingState === 'bad' ? 240 : 520,
-      y: slottingState === 'bad' ? 360 : 200,
-      label: slottingState === 'bad' ? 'PLT-204 (Bad Slot)' : 'PLT-204 (Optimised Slot)',
+      id: 'plt204-slot',
+      x: slottingState === 'bad' ? -12 : 4,
+      y: 0,
+      z: slottingState === 'bad' ? -12 : 4,
+      type: 'pallet',
       color: slottingState === 'bad' ? '#dc2626' : '#059669',
-      pulsing: true,
-      icon: '📦'
+      label: slottingState === 'bad' ? 'PLT-204 (Bad Slot)' : 'PLT-204 (Optimised Slot)'
     }
   ] : [
     {
-      x: replenStep >= 3 ? 735 : 580,
-      y: replenStep >= 3 ? 130 : 200,
-      label: replenStep >= 4 ? 'Refilled Pick Face' : 'Replenish AMR-01',
+      id: 'plt204-replen',
+      x: replenStep >= 3 ? 18 : 4,
+      y: 0,
+      z: replenStep >= 3 ? -2 : 4,
+      type: replenStep >= 3 ? 'pallet' : 'amr',
       color: replenStep >= 4 ? '#059669' : '#d97706',
-      pulsing: true,
-      icon: '🚜'
+      label: replenStep >= 4 ? 'Refilled Pick Face' : 'Replenish AMR-01'
     }
   ];
+
+  const routePath: [number, number, number][] | undefined = mode === 'slotting'
+    ? (slottingState === 'bad'
+        ? [[-12, 0, -12], [-12, 0, 12], [28, 0, 12]]
+        : [[4, 0, 4], [18, 0, 4]])
+    : (replenStep >= 2 ? [[4, 0, 4], [18, 0, -2]] : undefined);
 
   const kpis = mode === 'slotting' ? {
     travelDistance: slottingState === 'bad' ? 248 : 139,
@@ -69,7 +59,7 @@ export default function Chapter2() {
   return (
     <section className="chapter ch2">
       <div className="ch2__header">
-        <p className="chapter-eyebrow">Scene 2 · Storage &amp; Replenishment</p>
+        <p className="chapter-eyebrow">Scene 2 · 3D Storage &amp; Replenishment</p>
         <h1 className="chapter-title">ABC Slotting &amp; Pick-Face Replenishment</h1>
         <p className="chapter-subtitle">
           See how storing fast-moving SKU BX-4492 (Pallet PLT-204) near picking cuts travel distance, and watch the WMS automatically trigger pick-face replenishment when stock drops below threshold.
@@ -86,14 +76,16 @@ export default function Chapter2() {
       </div>
 
       <div className="ch2__body">
-        <div className="ch2__scene-wrap" style={{ flex: 1, minHeight: '380px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', background: '#f9f8f5' }}>
-          <WarehouseScene
-            highlights={highlights}
-            route={route}
-            routeTone={routeTone}
+        <div className="ch2__scene-wrap" style={{ flex: 1, minHeight: '400px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+          <Warehouse3DScene
+            isActive={true}
+            cameraPreset={mode === 'slotting' ? 'storage' : 'picking'}
             agents={agents}
+            routePath={routePath}
+            routeColor={mode === 'slotting' && slottingState === 'bad' ? '#dc2626' : '#059669'}
             kpiOverlay={kpis}
-            focusedZone={mode === 'slotting' ? 'storage' : 'asrs'}
+            storyTitle={mode === 'slotting' ? (slottingState === 'bad' ? 'Bad Slotting: SKU BX-4492' : 'Optimised Slotting: SKU BX-4492') : REPLEN_STEPS[replenStep].title}
+            storyDetail={mode === 'slotting' ? (slottingState === 'bad' ? 'Fast-moving SKU BX-4492 stored in back rack. Long 248m path per pick.' : 'SKU BX-4492 moved near picking. Route shortened to 139m (-44%).') : REPLEN_STEPS[replenStep].detail}
           />
         </div>
 
@@ -107,10 +99,10 @@ export default function Chapter2() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
                 <button className={`btn btn--sm ${slottingState === 'bad' ? 'btn--danger' : ''}`} onClick={() => setSlottingState('bad')}>
-                  ❌ BAD SLOTTING — Far Back Rack S-01
+                  ❌ BAD SLOTTING — Far Back Rack (-12, -12)
                 </button>
                 <button className={`btn btn--sm ${slottingState === 'optimised' ? 'btn--blue' : ''}`} onClick={() => setSlottingState('optimised')}>
-                  ✓ OPTIMISED SLOTTING — Near Picking Rack S-04-B
+                  ✓ OPTIMISED SLOTTING — Near Picking Rack (4, 4)
                 </button>
               </div>
 
