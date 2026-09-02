@@ -1,0 +1,82 @@
+:root {
+  --bg:           #f5f4f0;
+  --bg-warm:      #eeece6;
+  --surface:      #ffffff;
+  --surface-2:    #f9f8f5;
+  --border:       #e0ddd5;
+  --border-soft:  #d0cdc4;
+
+  --text-1: #1a1f2e;
+  --text-2: #4a5168;
+  --text-3: #8a8f9e;
+
+  --blue:      #1d6ff0;
+  --blue-dim:  #dbeafe;
+  --cyan:      #0891b2;
+  --cyan-dim:  #cffafe;
+  --green:     #059669;
+  --green-dim: #d1fae5;
+  --amber:     #d97706;
+  --amber-dim: #fef3c7;
+  --red:       #dc2626;
+  --red-dim:   #fee2e2;
+  --navy:      #1a1f2e;
+
+  --zone-receive:  #dbeafe;
+  --zone-storage:  #e0f2fe;
+  --zone-asrs:     #f0fdf4;
+  --zone-pick:     #fef9c3;
+  --zone-pack:     #fef3c7;
+  --zone-dispatch: #d1fae5;
+
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-mono:    'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
+
+  --nav-h: 56px;
+  --chapter-max: 1400px;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button { font-family: inherit; cursor: pointer; }
+::selection { background: var(--blue-dim); color: var(--navy); }
+.mono { font-family: var(--font-mono); }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-warm); }
+::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 4px; }

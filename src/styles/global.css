@@ -1,0 +1,208 @@
+/* ── App Shell ── */
+.app-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.view-frame {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* ── Buttons ── */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  padding: 11px 22px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface);
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) { transform: translateY(0); }
+
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn--primary {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #2a324a;
+  border-color: #2a324a;
+  color: #fff;
+}
+
+.btn--blue {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn--blue:hover:not(:disabled) {
+  background: #1558d4;
+  border-color: #1558d4;
+  color: #fff;
+}
+
+.btn--danger {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-dim);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.btn--ghost {
+  background: transparent;
+  box-shadow: none;
+}
+
+.btn--sm {
+  font-size: 11px;
+  padding: 7px 14px;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* ── Chip / pill ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.chip--blue   { background: var(--blue-dim);  border-color: #93c5fd; color: var(--blue); }
+.chip--green  { background: var(--green-dim); border-color: #6ee7b7; color: var(--green); }
+.chip--amber  { background: var(--amber-dim); border-color: #fcd34d; color: var(--amber); }
+.chip--red    { background: var(--red-dim);   border-color: #fca5a5; color: var(--red); }
+.chip--cyan   { background: var(--cyan-dim);  border-color: #67e8f9; color: var(--cyan); }
+
+/* ── Section wrapper ── */
+.chapter {
+  max-width: var(--chapter-max);
+  margin: 0 auto;
+  padding: 40px 48px 56px;
+  min-height: calc(100vh - var(--nav-h));
+  display: flex;
+  flex-direction: column;
+}
+
+.chapter-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 0 0 10px;
+}
+
+.chapter-title {
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+  margin: 0 0 8px;
+  line-height: 1.1;
+}
+
+.chapter-subtitle {
+  font-size: clamp(14px, 1.5vw, 17px);
+  color: var(--text-2);
+  margin: 0 0 32px;
+  line-height: 1.6;
+  max-width: 640px;
+}
+
+/* ── Divider ── */
+.divider {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+/* ── Illustrative disclaimer ── */
+.illustrative-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: auto;
+  padding-top: 16px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Explanation box ── */
+.explain-box {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.explain-box h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+
+.explain-box p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-1);
+}
+
+/* ── Grid helpers ── */
+.split-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.split-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}

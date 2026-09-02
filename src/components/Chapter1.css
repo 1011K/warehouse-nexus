@@ -1,0 +1,109 @@
+.ch1 { gap: 20px; }
+
+.ch1__header { max-width: 720px; }
+
+.ch1__body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 20px;
+  min-height: 0;
+}
+
+.ch1__flow-labels {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.ch1__flow-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  opacity: 0.35;
+  transition: all 0.4s ease;
+}
+
+.ch1__flow-label--active {
+  opacity: 1;
+  border-color: var(--blue);
+  background: var(--blue-dim);
+  box-shadow: var(--shadow-sm);
+}
+
+.ch1__flow-label-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  font-weight: 600;
+}
+
+.ch1__flow-label-text {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+}
+
+.ch1__scene {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: #f9f8f5;
+  border: 1px solid var(--border);
+  height: 340px;
+}
+
+.ch1__five {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.ch1__thing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+  padding: 16px 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  animation: fadeUp 0.5s ease both;
+  border-top: 3px solid var(--c);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ch1__thing-icon { font-size: 24px; line-height: 1; }
+
+.ch1__thing-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.ch1__thing-desc {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+.ch1__replay {
+  align-self: flex-start;
+  font-size: 12px;
+  padding: 7px 14px;
+}
